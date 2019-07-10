@@ -64,27 +64,3 @@ int main(int argc, char **argv){
 
   return 0;
 }
-
-void initial_state(){
-  int input = 0;
-
-
-
-
-
-  /*
-  cout << "Select options:" << endl;
-  if (motor_state){
-    cout << "1-Disable Motors  | 2-Pose Control  | 3-..." << endl;
-  }else{
-    cout << "1-Enable Motors  | 2-Pose Control  | 3-..." << endl;
-  }
-
-  cin >> input;
-
-  if (input == 1){
-    if (motor_state){
-      rosservice call /enable_motors "enable: true"
-    }
-  }*/
-}
