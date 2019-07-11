@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   geometry_msgs
   hector_uav_msgs
+  tf
 )
 
 find_package(Eigen3 REQUIRED)
@@ -20,7 +21,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES cpp_test
-  CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport hector_uav_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport hector_uav_msgs tf
   DEPENDS EIGEN3 OpenCV#system_lib
 )
 
