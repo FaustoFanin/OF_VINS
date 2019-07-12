@@ -16,14 +16,13 @@ class NavFilter{
     Eigen::Matrix<double,STATES,STATES> P_k;    // State covariance matrix
     Eigen::Matrix<double,STATES,STATES> P_k_p;  // Prev time-step state covariance matrix
     Eigen::Matrix<double,STATES,STATES> F_k;    // State transition model
-    Eigen::Matrix<double,MSRMTS,STATES> H_k;    // Observation model for position measurement
+    Eigen::Matrix<double,MSRMTS,STATES> H_k;    // Observation model
     Eigen::Matrix<double,STATES,STATES> Q_k;    // Process noise covariance
     Eigen::Matrix<double,MSRMTS,MSRMTS> R_k;    // Observation noise covariance
     Eigen::Matrix<double,MSRMTS,MSRMTS> S_k;    // Innovation matrix
     Eigen::Matrix<double,STATES,MSRMTS> K_k;    // Kalman gains
     Eigen::Matrix<double,MSRMTS,1> y_k;         // Innovation
     Eigen::Matrix<double,MSRMTS,1> z_k;         // Sensor measurement
-    Eigen::Matrix<double,3,3> C_k;              // Inertial-to-Body Rotation
     Eigen::Matrix<double,4,4> Omega_k;          // Skew symmetric matrix associated with ω
 
   public:
@@ -170,11 +169,6 @@ class NavFilter{
 
       tfBroadcaster.sendTransform( tf::StampedTransform(tf_fused, ros::Time::now(), "world", "fused_frame"));
 
-      return;
-    }
-
-    void updateRotationMatrix(){
-      
       return;
     }
 };

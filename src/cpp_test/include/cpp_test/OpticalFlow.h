@@ -11,24 +11,18 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-cv::UMat DenseOF(const sensor_msgs::ImageConstPtr& raw_image, const sensor_msgs::ImageConstPtr& raw_image_prev){
-  cv_bridge::CvImagePtr cv_ptr, cv_ptr_prev;
-
-  try{
-    cv_ptr = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-    cv_ptr_prev = cv_bridge::toCvCopy(raw_image_prev, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    //return;   // What do I return here?
-  }
-
+cv::UMat DenseOF(const cv_bridge::CvImagePtr& raw_image_ptr, const cv_bridge::CvImagePtr& raw_image_prev_ptr){
+  cv::UMat img_grey, img_prev_grey;
   cv::UMat OF_img;
 
+  cv::cvtColor(raw_image_ptr->image, img_grey, cv::COLOR_RGB2GRAY);
+  cv::cvtColor(raw_image_prev_ptr->image, img_prev_grey, cv::COLOR_RGB2GRAY);
   /*cv::optflow::calcOpticalFlowSF(cv_ptr_prev->image, cv_ptr->image,
                                  OF_img,
                                  3, 2, 4);//, 4.1, 25.5, 18, 55.0, 25.5, 0.35, 18, 55.0, 25.5, 10); // Type is CV_32FC2
                                  */ // Slow as testicles
-  cv::calcOpticalFlowFarneback(cv_ptr_prev->image, cv_ptr->image, OF_img, 0.5, 3, 15, 3, 5, 1.2, 0);
+  //cv::calcOpticalFlowFarneback(raw_image_prev_ptr->image, raw_image_ptr->image, OF_img, 0.5, 3, 15, 3, 5, 1.2, 0);
+  cv::calcOpticalFlowFarneback(img_prev_grey, img_grey, OF_img, 0.5, 3, 15, 3, 5, 1.2, 0);
 
   return OF_img;
 }

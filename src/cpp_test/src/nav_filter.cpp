@@ -6,8 +6,9 @@
 
 #include <sstream>
 
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_ros/transform_broadcaster.h>
+#include <tf/LinearMath/Quaternion.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/LinearMath/Vector3.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <Eigen/Dense>
 #include <geometry_msgs/Point.h>
@@ -17,47 +18,6 @@
 #include <geometry_msgs/TwistWithCovariance.h>
 
 #include <cpp_test/NavFilter.h>
-
-
-/*
-void pubTFframe(Eigen::VectorXf const &state_vec){
-  // Taken and modified from: http://wiki.ros.org/tf2/Tutorials/Writing
-  static tf2_ros::TransformBroadcaster broadcaster;
-
-  geometry_msgs::TransformStamped tfStamped;
-
-  tf2::Quaternion q;
-  q.setRPY(0, 0, msg->theta);
-
-  tfStamped.header.stamp = ros::Time::now();
-  tfStamped.header.frame_id = "world";
-  tfStamped.child_frame_id = turtle_name;
-  tfStamped.transform.translation.x = msg->x;
-  tfStamped.transform.translation.y = msg->y;
-  tfStamped.transform.translation.z = 0.0;
-  tfStamped.transform.rotation.x = q.x();
-  tfStamped.transform.rotation.y = q.y();
-  tfStamped.transform.rotation.z = q.z();
-  tfStamped.transform.rotation.w = q.w();
-
-  broadcaster.sendTransform(tfStamped);
-}
-*/
-/*
-<plugin name="quadrotor_imu_sim" filename="libhector_gazebo_ros_imu.so">
-  <updateRate>100.0</updateRate>
-  <bodyName>base_link</bodyName>
-  <frameId>$(arg base_link_frame)</frameId>
-  <topicName>raw_imu</topicName>
-  <rpyOffset>0 0 0</rpyOffset> <!-- deprecated -->
-  <gaussianNoise>0</gaussianNoise>  <!-- deprecated -->
-  <accelDrift>0.1 0.1 0.1</accelDrift>
-  <accelGaussianNoise>0.35 0.35 0.3</accelGaussianNoise>
-  <rateDrift>0.1 0.1 0.1</rateDrift>
-  <rateGaussianNoise>0.05 0.05 0.015</rateGaussianNoise>
-</plugin>
-*/
-
 
 int main(int argc, char **argv){
 

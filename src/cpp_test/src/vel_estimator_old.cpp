@@ -5,13 +5,12 @@
 #include <cpp_test/OpticalFlow.h>
 #include <image_transport/image_transport.h>
 
-cv_bridge::CvImagePtr raw_up, raw_up_old;
-cv_bridge::CvImagePtr raw_fw, raw_fw_old;
-cv_bridge::CvImagePtr raw_dw, raw_dw_old;
-cv_bridge::CvImagePtr raw_bw, raw_bw_old;
-cv_bridge::CvImagePtr raw_ll, raw_ll_old;
-cv_bridge::CvImagePtr raw_rr, raw_rr_old;
-cv_bridge::CvImagePtr raw_temp;
+sensor_msgs::Image raw_up, raw_up_old;
+sensor_msgs::Image raw_fw, raw_fw_old;
+sensor_msgs::Image raw_dw, raw_dw_old;
+sensor_msgs::Image raw_bw, raw_bw_old;
+sensor_msgs::Image raw_ll, raw_ll_old;
+sensor_msgs::Image raw_rr, raw_rr_old;
 
 bool up_rec = false;
 bool fw_rec = false;
@@ -20,6 +19,7 @@ bool bw_rec = false;
 bool ll_rec = false;
 bool rr_rec = false;
 
+//int img_recieved = 0;
 /*
 void imageCallback(const sensor_msgs::ImageConstPtr& raw_image){
   // created shared pointer Image
@@ -50,52 +50,46 @@ void imageCallback(const sensor_msgs::ImageConstPtr& raw_image){
 }
 */
 void upCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_up = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("upCallback");
+  raw_up = *raw_image;
+  up_rec = true;
+
+  return;
 }
 void fwCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_fw = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("fwCallback");
+  raw_fw = *raw_image;
+  fw_rec = true;
+
+  return;
 }
 void dwCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_dw = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("dwCallback");
+  raw_dw = *raw_image;
+  dw_rec = true;
+
+  return;
 }
 void bwCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_bw = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("bwCallback");
+  raw_bw = *raw_image;
+  bw_rec = true;
+
+  return;
 }
 void llCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_ll = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("llCallback");
+  raw_ll = *raw_image;
+  ll_rec = true;
+
+  return;
 }
 void rrCallback(const sensor_msgs::ImageConstPtr& raw_image){
-  try{
-    raw_rr = cv_bridge::toCvCopy(raw_image, sensor_msgs::image_encodings::BGR8);
-  }catch (cv_bridge::Exception& e){
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
+  ROS_INFO("rrCallback");
+  raw_rr = *raw_image;
+  rr_rec = true;
+
+  return;
 }
 
 int main(int argc, char **argv){
@@ -123,20 +117,16 @@ int main(int argc, char **argv){
 
   while(ros::ok())
   {
-    if(raw_up && raw_fw && raw_dw && raw_bw && raw_ll && raw_rr){
+    if (up_rec && fw_rec && dw_rec && bw_rec && ll_rec && rr_rec){
+      ROS_INFO("Calculating Dense OF");
       // Perform OF alg
-      if(raw_up_old && raw_fw_old && raw_dw_old && raw_bw_old && raw_ll_old && raw_rr_old){
+      OF_up = DenseOF(&raw_up, &raw_up_old);
+      OF_fw = DenseOF(&raw_fw, &raw_fw_old);
+      OF_bw = DenseOF(&raw_bw, &raw_bw_old);
+      OF_dw = DenseOF(&raw_dw, &raw_dw_old);
+      OF_ll = DenseOF(&raw_ll, &raw_ll_old);
+      OF_rr = DenseOF(&raw_rr, &raw_rr_old);
 
-        ROS_INFO("Calculating Dense OF");
-        OF_up = DenseOF(raw_up, raw_up_old);
-        OF_fw = DenseOF(raw_fw, raw_fw_old);
-        OF_bw = DenseOF(raw_bw, raw_bw_old);
-        OF_dw = DenseOF(raw_dw, raw_dw_old);
-        OF_ll = DenseOF(raw_ll, raw_ll_old);
-        OF_rr = DenseOF(raw_rr, raw_rr_old);
-      }
-
-      ROS_INFO("Copying old images");
       raw_up_old = raw_up;
       raw_fw_old = raw_fw;
       raw_dw_old = raw_dw;
@@ -149,18 +139,18 @@ int main(int argc, char **argv){
 
       // Publish to topic
       vel_pub.publish(vel_est);
-
-      ROS_INFO("Resetting pointers");
-      raw_up.reset();
-      raw_fw.reset();
-      raw_dw.reset();
-      raw_bw.reset();
-      raw_ll.reset();
-      raw_rr.reset();
     }else{
       // Didn't receive all 6 images
       ROS_INFO("Didn't receive all 6");
     }
+
+    up_rec = false;
+    fw_rec = false;
+    dw_rec = false;
+    bw_rec = false;
+    ll_rec = false;
+    rr_rec = false;
+    //img_recieved = 0;   // Reset counter
 
     ros::spinOnce();
     loop_rate.sleep();
