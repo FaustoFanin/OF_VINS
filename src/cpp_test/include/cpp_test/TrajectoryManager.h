@@ -8,18 +8,25 @@ class TrajectoryManager{
 
     geometry_msgs::PoseArray traj;
     geometry_msgs::Twist vel_lim;
+    geometry_msgs::Point real_pos;
 
     ros::NodeHandle node;
 
     ros::Publisher pose_pub;
     ros::Publisher vel_lim_pub;
+    ros::Publisher real_pos_pub;
     ros::ServiceClient motor_enable_srv;
+
+    ros::Subscriber gnd_truth_pos;
 
   public:
     TrajectoryManager(){
       // Subscribtions
       pose_pub = node.advertise<geometry_msgs::PoseStamped>("/command/pose", 20);
       vel_lim_pub = node.advertise<geometry_msgs::Twist>("/command/twist_limit", 20);
+      real_pos_pub = node.advertise<geometry_msgs::Point>("/raw_pos", 20);
+
+      gnd_truth_pos = node.subscribe("/ground_truth/state", 10, &TrajectoryManager::pos_faker, this);
 
       motor_enable_srv = node.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
 
@@ -36,18 +43,25 @@ class TrajectoryManager{
 
 
       //ROS_INFO("Broadcasting world->goal tf");
-      //tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "/world", "/goal"));
+      tf::poseMsgToTF(genPose(0,0,0,0), tfGoal);
+      tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "world", "goal"));
+
     }
 
 
     void spin(){
+      //spitPos();
+
       //ROS_INFO("TM Spinner");
       try{
         tfListener.lookupTransform("base_link", "world", ros::Time(0), tfActual);
       }catch (tf::TransformException &ex){
-        ROS_ERROR("%s",ex.what());
+        ROS_ERROR("1 %s",ex.what());
         ros::Duration(1.0).sleep();
       }
+
+      //ROS_INFO("Broadcasting world->goal tf");
+      tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "world", "goal"));
 
       if (TrajectoryManager::reachedGoal()){
         if (traj.poses.size() < 1){
@@ -55,6 +69,7 @@ class TrajectoryManager{
         }else{
           ROS_INFO("Reached Goal, updating WP");
           TrajectoryManager::setNewGoal();
+          ros::Duration(5).sleep();
         }
       }else{
         ROS_INFO("Not yet reached Goal");
@@ -75,7 +90,7 @@ class TrajectoryManager{
       traj.poses.push_back(TrajectoryManager::genPose(  9.0,-6.5, 1.0, M_PI/2)); // Move to WP4
       traj.poses.push_back(TrajectoryManager::genPose(  9.0,-6.5, 1.0, 3*M_PI/4)); // Align to WP5
       traj.poses.push_back(TrajectoryManager::genPose(  3.0,-0.0, 1.0, 3*M_PI/4)); // Move to WP5
-      traj.poses.push_back(TrajectoryManager::genPose(  0.0, 0.0, 1.0, M_PI)); // Move to WP5
+      traj.poses.push_back(TrajectoryManager::genPose(  0.0, 0.0, 1.0, M_PI)); // Move to WP1
 
       return traj;
     }
@@ -105,9 +120,6 @@ class TrajectoryManager{
       // Update goal tf
       tf::poseMsgToTF(newGoal.pose, tfGoal);
 
-      ROS_INFO("Broadcasting world->goal tf");
-      tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "world", "goal"));
-
       // Delete current goal from array
       traj.poses.erase(traj.poses.begin());
 
@@ -122,19 +134,19 @@ class TrajectoryManager{
 
       //tfRel = tfActual.inverseTimes(tfGoal);
 
-      /*try{
+      try{
         tfListener.lookupTransform("goal","base_link",ros::Time(0),tfRel);
       }catch (tf::TransformException &ex){
-        ROS_ERROR("%s",ex.what());
+        ROS_ERROR("2 %s",ex.what());
         ros::Duration(1.0).sleep();
-      }*/
+      }
       dist = tfRel.getOrigin().length();
       heading = getYaw(tfRel.getRotation());
 
 
       ROS_INFO("Distance to next waypoint: %f", dist);
 
-      if ((abs(dist) <= 0.1)&&(abs(heading) <= 15.0*M_PI/180.0)){
+      if ((abs(dist) <= 0.05)&&(abs(heading) <= 5.0*M_PI/180.0)){
         return true;
       }else{
         return false;
@@ -151,6 +163,23 @@ class TrajectoryManager{
       }else{
         ROS_ERROR("Motor Enabling FAILED");
       }
+
+      return;
+    }
+
+    void pos_faker(const nav_msgs::Odometry& gnd_truth){
+      real_pos = gnd_truth.pose.pose.position;
+      real_pos_pub.publish(real_pos);
+
+      return;
+    }
+
+    void spitPos(){
+      real_pos.x = tfActual.getOrigin().x();
+      real_pos.y = tfActual.getOrigin().y();
+      real_pos.z = tfActual.getOrigin().z();
+
+      real_pos_pub.publish(real_pos);
 
       return;
     }

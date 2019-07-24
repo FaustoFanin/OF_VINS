@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <geometry_msgs/TwistWithCovariance.h>
+#include <geometry_msgs/Point.h>
 
 #include <cpp_test/OpticalFlow.h>
 #include <image_transport/image_transport.h>
@@ -11,7 +12,6 @@ cv_bridge::CvImagePtr raw_dw, raw_dw_old;
 cv_bridge::CvImagePtr raw_bw, raw_bw_old;
 cv_bridge::CvImagePtr raw_ll, raw_ll_old;
 cv_bridge::CvImagePtr raw_rr, raw_rr_old;
-cv_bridge::CvImagePtr raw_temp;
 
 bool up_rec = false;
 bool fw_rec = false;
@@ -134,6 +134,12 @@ int main(int argc, char **argv){
         OF_dw = DenseOF(raw_dw, raw_dw_old);
         OF_ll = DenseOF(raw_ll, raw_ll_old);
         OF_rr = DenseOF(raw_rr, raw_rr_old);
+
+        // Do vel alg
+        vel_est = VelAlg(OF_up,OF_fw,OF_dw,OF_bw,OF_ll,OF_rr);
+
+        // Publish to topic
+        vel_pub.publish(vel_est);
       }
 
       ROS_INFO("Copying old images");
@@ -143,12 +149,6 @@ int main(int argc, char **argv){
       raw_bw_old = raw_bw;
       raw_rr_old = raw_ll;
       raw_ll_old = raw_rr;
-
-      // Do vel alg
-      vel_est = VelAlg(OF_up,OF_fw,OF_dw,OF_bw,OF_ll,OF_rr);
-
-      // Publish to topic
-      vel_pub.publish(vel_est);
 
       ROS_INFO("Resetting pointers");
       raw_up.reset();

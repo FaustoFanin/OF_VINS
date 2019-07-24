@@ -1,10 +1,13 @@
 #include <ros/ros.h>
 #include <iostream>
+
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+
 #include <hector_uav_msgs/EnableMotors.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
@@ -28,8 +31,8 @@ int main(int argc, char **argv){
   ROS_INFO("Starting Node");
 
   while( ros::ok() ){
-    cout << "Press Enter to Continue";
-    cin.ignore();
+    //cout << "Press Enter to Continue";
+    //cin.ignore();
 
     TrajMan.spin();
 

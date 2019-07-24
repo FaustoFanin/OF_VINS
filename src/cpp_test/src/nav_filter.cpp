@@ -1,5 +1,6 @@
-#define STATES 16   // Number of states of Kalman Filter
-#define MSRMTS 16   // Number of measurements of Kalman Filter
+#define STATES 10   // Number of states of Kalman Filter
+#define INPUTS 6    // Number of inputs of Kalman Filter
+#define MSRMTS 3   // Number of measurements of Kalman Filter
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -36,7 +37,7 @@ int main(int argc, char **argv){
   {
 
     state_prediction = filter.propagateFilter();
-    std::cout << state_prediction.transpose() << std::endl;
+    //std::cout << state_prediction.transpose() << std::endl;
     //pubTFframe(state_prediction);
 
     ros::spinOnce();
