@@ -8,11 +8,8 @@ However, this project includes a complete copy of the Hector files are some core
 This project was developed with the following distributions/libraries:
 - Ubuntu 16.04
 - ROS Kinetic Kame
-- Eigen
 
-
-
-
+###### Misc.
 Furthermore, the following commands had to be run to fix some issues to get the Hector project to run:
 ```
 sudo apt-get install ros-kinetic-ros-control
