@@ -37,7 +37,7 @@ rosrun cpp_test nav_filter
 ```
 Will run the navigation filter, which will also output the estimate position to the tf tree under `fused_frame` and to the topic `/fused_state/odom`.
 
-###### Optical Flow
+###### Optical Flow Algorithm
 ```
 rosrun cpp_test vel_estimator
 ```
@@ -48,3 +48,9 @@ This will run the Optical Flow algorithm, which will subscribe to the relative c
 rosrun cpp_test trajectories
 ```
 This will run the node that handles publishing the relevant waypoints to the topic that the position controller is subscribed to. The node will wait at the current waypoint until it is triggered to go to the next one. This is done by running the following command in a terminal: `rostopic pub /moveit std_msgs/String "y"`
+
+###### Optical Flow Fun
+```
+rosrun cpp_test of_test
+```
+This will run a simple script that will run an optical flow algorithm on the laptops webcam, outputting the result in a small window.
