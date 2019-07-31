@@ -1,6 +1,9 @@
 #include <ros/ros.h>
 #include <iostream>
+#include <stdlib.h>
+#include <random>
 
+#include <std_msgs/String.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Quaternion.h>
@@ -15,11 +18,12 @@
 #include <tf/LinearMath/Transform.h>
 #include <tf/LinearMath/Vector3.h>
 
+
 using namespace std;
 
 int main(int argc, char **argv){
 
-  ros::init(argc, argv, "main_test");
+  ros::init(argc, argv, "trajectories");
 
   TrajectoryManager TrajMan;
   ros::Rate loop_rate(1);

@@ -1,5 +1,7 @@
 class TrajectoryManager{
   private:
+    ros::NodeHandle node;
+
     tf::TransformListener tfListener;
     tf::TransformBroadcaster tfBroadcaster;
 
@@ -10,23 +12,31 @@ class TrajectoryManager{
     geometry_msgs::Twist vel_lim;
     geometry_msgs::Point real_pos;
 
-    ros::NodeHandle node;
-
     ros::Publisher pose_pub;
     ros::Publisher vel_lim_pub;
     ros::Publisher real_pos_pub;
     ros::ServiceClient motor_enable_srv;
 
     ros::Subscriber gnd_truth_pos;
+    ros::Subscriber enable_movement;
+
+    bool move_enabled;
+
+    // Randomness
+    std::random_device rd;
+    typedef std::mt19937 myGen;
+    myGen generator;
+    std::normal_distribution<double> distribution;
 
   public:
-    TrajectoryManager(){
+    TrajectoryManager(): generator(rd()), distribution(std::normal_distribution<>(0.0, 0.2)){
       // Subscribtions
       pose_pub = node.advertise<geometry_msgs::PoseStamped>("/command/pose", 20);
       vel_lim_pub = node.advertise<geometry_msgs::Twist>("/command/twist_limit", 20);
       real_pos_pub = node.advertise<geometry_msgs::Point>("/raw_pos", 20);
 
       gnd_truth_pos = node.subscribe("/ground_truth/state", 10, &TrajectoryManager::pos_faker, this);
+      enable_movement = node.subscribe("/moveit", 10, &TrajectoryManager::moveCallback, this);
 
       motor_enable_srv = node.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
 
@@ -46,6 +56,10 @@ class TrajectoryManager{
       tf::poseMsgToTF(genPose(0,0,0,0), tfGoal);
       tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "world", "goal"));
 
+      move_enabled = false;
+      //generator(rd());
+      //generator.seed(::time(NULL))
+      //distribution(std::normal_distribution<>(0.0, 0.2));
     }
 
 
@@ -63,7 +77,8 @@ class TrajectoryManager{
       //ROS_INFO("Broadcasting world->goal tf");
       tfBroadcaster.sendTransform(tf::StampedTransform(tfGoal, ros::Time::now(), "world", "goal"));
 
-      if (TrajectoryManager::reachedGoal()){
+      if (TrajectoryManager::reachedGoal() && move_enabled){
+        move_enabled = false;
         if (traj.poses.size() < 1){
           ROS_INFO("Reached Final WP");
         }else{
@@ -72,7 +87,7 @@ class TrajectoryManager{
           ros::Duration(5).sleep();
         }
       }else{
-        ROS_INFO("Not yet reached Goal");
+        //ROS_INFO("Not yet reached Goal");
       }
     }
 
@@ -144,7 +159,7 @@ class TrajectoryManager{
       heading = getYaw(tfRel.getRotation());
 
 
-      ROS_INFO("Distance to next waypoint: %f", dist);
+      ROS_INFO("Distance to next waypoint: %.2f [m]", dist);
 
       if ((abs(dist) <= 0.05)&&(abs(heading) <= 5.0*M_PI/180.0)){
         return true;
@@ -168,7 +183,10 @@ class TrajectoryManager{
     }
 
     void pos_faker(const nav_msgs::Odometry& gnd_truth){
-      real_pos = gnd_truth.pose.pose.position;
+      real_pos.x = gnd_truth.pose.pose.position.x + distribution(generator);
+      real_pos.y = gnd_truth.pose.pose.position.y + distribution(generator);
+      real_pos.z = gnd_truth.pose.pose.position.z + distribution(generator);
+
       real_pos_pub.publish(real_pos);
 
       return;
@@ -181,6 +199,15 @@ class TrajectoryManager{
 
       real_pos_pub.publish(real_pos);
 
+      return;
+    }
+
+    void moveCallback(const std_msgs::String::ConstPtr& enable){
+      // rostopic pub /moveit std_msgs/String 'y'
+      if (enable->data == "y"){
+        move_enabled = true;
+        ROS_INFO("Enabling Movement");
+      }
       return;
     }
 };

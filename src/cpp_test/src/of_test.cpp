@@ -15,7 +15,7 @@
 using namespace cv;
 
 int main(int, char**){
-  VideoCapture cap(0); // open the default camera
+  VideoCapture cap(1); // open the default camera
   if(!cap.isOpened())  // check if we succeeded
       return -1;
 
@@ -53,7 +53,7 @@ int main(int, char**){
     frame_s.copyTo(prev_frame_s);
 
     meanStdDev(of, vel, cov);
-    //std::cout << vel.getMat(ACCESS_READ).at<float>(1) << std::endl;
+    std::cout << vel.getMat(ACCESS_READ).at<float>(1) << std::endl;
 
 
     // Visualisation stuff
