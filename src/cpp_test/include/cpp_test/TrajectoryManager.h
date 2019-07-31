@@ -203,7 +203,7 @@ class TrajectoryManager{
     }
 
     void moveCallback(const std_msgs::String::ConstPtr& enable){
-      // rostopic pub /moveit std_msgs/String 'y'
+      // rostopic pub /moveit std_msgs/String "y"
       if (enable->data == "y"){
         move_enabled = true;
         ROS_INFO("Enabling Movement");
