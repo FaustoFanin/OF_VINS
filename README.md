@@ -1,6 +1,6 @@
 # Visual-Inertial Navigation Filter for a UAV
 
-This project is part of my MSc thesis at Cranfield University. The aim was to develop a [optical flow](https://en.wikipedia.org/wiki/Optical_flow)-based Visual-Inertial Navigation (VINS) filter for a UAV in an indoor envrionment. In order to test the VINS I developed a simulation in ROS/Gazebo.
+This project is part of my MSc thesis at Cranfield University. The aim was to develop a [optical flow](https://en.wikipedia.org/wiki/Optical_flow)-based Visual-Inertial Navigation System (VINS) for a UAV in an indoor envrionment. In order to test the VINS I developed a simulation in ROS/Gazebo.
 
 This repository contains the project files for the VINS and all the Gazebo files. For the UAV model I utilised the [Hector project](https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor) from TU Darmstadt and as I had to modify a number of these files for one reason or antoher I've included them in the project. These are all the `hector_XXX` folders in the `src` folder.
 
