@@ -15,9 +15,7 @@
 using namespace cv;
 
 int main(int, char**){
-  //VideoCapture cap("vid2.mp4"); // open the default camera
-  VideoCapture cap("test2.webm"); // open the default camera
-  //VideoCapture cap(0); // open the default camera
+  VideoCapture cap(0); // open the default camera
   if(!cap.isOpened()){  // check if we succeeded
     std::cout << "Cannot open video file!" << std::endl;
     return -1;

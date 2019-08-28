@@ -64,9 +64,6 @@ target_link_libraries(nav_filter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_executable(of_test src/of_test.cpp)
 target_link_libraries(of_test ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
-add_executable(of_test2 src/of_test2.cpp)
-target_link_libraries(of_test2 ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-
 add_executable(trajectories src/trajectories.cpp)
 target_link_libraries(trajectories ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(trajectories ${catkin_EXPORTED_TARGETS})

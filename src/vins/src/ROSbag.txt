@@ -1,2 +1,0 @@
-cd ~/bagfiles
-rosbag record /tf
